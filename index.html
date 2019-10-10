@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Hello World!</title>
+    <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self';" />
+    <script src="data/mainProcess.js"></script>
+    <link rel="stylesheet" href="data/styles.css">
+  </head>
+  <body>
+    <div id="connectionid"></div>
+    <h2>Event:</h2>
+    <input id="event" type="text">
+    <h2>Titles:</h2>
+    <div id="container">
+      
+    </div>
+    <div id="add"></div>
+    <div id="buttonTemplate">
+      <input type="text" class="titleInput">
+      <div class="liveButton"></div>
+    </div>
+  </body>
+</html>
