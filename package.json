@@ -1,6 +1,6 @@
 {
   "name": "caspar-electron",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "An electron app for titling via casparcg",
   "main": "index.js",
   "scripts": {
