@@ -18,32 +18,48 @@ function createWindow () {
 }
 
 //TODO: Make this path configurable
-const scanner = exec('d:/caspar-server/220/scanner.exe', { shell:'cmd.exe', cwd:'d:/caspar-server/220/' }, (err, stdout, stderr) => {
+//TODO: check for casparcg instrances
+const scanner = exec('d:/caspar-server/220/casparcg_auto_restart.bat', { shell:'cmd.exe', cwd:'d:/caspar-server/220/' }, (err, stdout, stderr) => {
   console.log('s: '+err)
   console.log('s: '+stderr)
   console.log('s: '+stdout)
 });
 
-const caspar = exec('d:/caspar-server/220/casparcg.exe', { shell:'cmd.exe', cwd:'d:/caspar-server/220/' }, (err, stdout, stderr) => {
-  console.log('c: '+err)
-  console.log('c: '+stderr)
-  console.log('c: '+stdout)
-});
+// const caspar = exec('d:/caspar-server/220/casparcg.exe', { shell:'cmd.exe', cwd:'d:/caspar-server/220/' }, (err, stdout, stderr) => {
+//   console.log('c: '+err)
+//   console.log('c: '+stderr)
+//   console.log('c: '+stdout)
+// });
+
+scanner.stdout.on('data', (data) => {
+  console.log(data)
+})
 
 app.on('ready', () => {
+  // const scanner = exec('d:/caspar-server/220/scanner.exe', { shell:'cmd.exe', cwd:'d:/caspar-server/220/' }, (err, stdout, stderr) => {
+  //   console.log('s: '+err)
+  //   console.log('s: '+stderr)
+  //   console.log('s: '+stdout)
+  // });
+  
+  // const caspar = exec('d:/caspar-server/220/casparcg.exe', { shell:'cmd.exe', cwd:'d:/caspar-server/220/' }, (err, stdout, stderr) => {
+  //   console.log('c: '+err)
+  //   console.log('c: '+stderr)
+  //   console.log('c: '+stdout)
+  // });
   createWindow()
   
 })
-caspar.stdout.on('data', (data) => {
-  console.log(data.toString())
-})
+
+
 app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
-    const killScanner = spawn("taskkill", ["/pid", scanner.pid, '/f', '/t']);
-    // const killCaspar = spawn("taskkill", ["/pid", caspar.pid, '/f', '/t']);
-    
+    // const killScanner = exec("taskkill /pid" + scanner.pid + "/f /t");
+    // const killCaspar = exec("taskkill /pid" + caspar.pid + "/f /t", () => {
+      
+    // })
     app.quit()
   }
 })
