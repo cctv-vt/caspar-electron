@@ -1,4 +1,5 @@
 const net = require("net")
+const remote = require("electron").remote
 
 var client = new net.Socket();
 
@@ -6,10 +7,19 @@ var activeTitle
 
 var d = new Date()
 
-client.connect(5250, 'localhost', function(){
+
+client.on('connect', () => {
     document.getElementById('connectionid').style.background = "#39ff92"
+    send("TLS")
 })
 
+client.on('close', () => {
+    client.setTimeout(1000, () => {
+        client.connect(5250, 'localhost')
+    })
+})
+
+client.connect(5250, 'localhost')
 
 client.on('data', function(data) {
     console.log(data.toString());
@@ -20,7 +30,6 @@ client.on('data', function(data) {
     if (dataArr[0] == "200 TLS OK"){
         dataArr.splice(0,1)
         document.getElementById('container').innerHTML = ""
-        document.getElementById("add").addEventListener('click', function(){addTitle("TITLE/MUNICIPAL")}, false)
         for (var i = 0; i < dataArr.length; i++) {
             addTitle(dataArr[i])
         }
@@ -40,6 +49,7 @@ function send(msg) {
 }
 
 function addTitle(title) {
+    console.log(" add title fired")
     var elem = document.createElement('div')
     elem.classList.add("titleButton")
     elem.dataset.title = title
@@ -51,6 +61,7 @@ function addTitle(title) {
     elem.childNodes[3].addEventListener('click',function(event){
         toggleTitle(event.target.parentElement)
     }, false)
+    elem.draggable = 'true'
 }
 
 //Figures out current title and toggles it/replaces it with time for 1s of animation
@@ -104,14 +115,22 @@ function getChildNumber(node) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    send("CG 1 CLEAR")
     send("TLS")
+    document.getElementById('connectionid').addEventListener('click', () => {
+        send('TLS')
+    })
+    document.getElementById("add").addEventListener('click', () => {
+        addTitle("TITLE/MUNICIPAL")
+    }, false)
     // document.getElementById('casparlist').addEventListener('click', function(){
     //     var input = document.getElementById('input');
     //     send(input.value)
     // }, false)
 });
 
-window.addEventListener('beforeunload', function(){
+
+
+window.addEventListener('close', function(){
     send("KILL")
 })
+
