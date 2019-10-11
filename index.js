@@ -42,7 +42,7 @@ app.on('window-all-closed', () => {
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
     const killScanner = spawn("taskkill", ["/pid", scanner.pid, '/f', '/t']);
-    console.log(killScanner.stdout);
+    // const killCaspar = spawn("taskkill", ["/pid", caspar.pid, '/f', '/t']);
     
     app.quit()
   }
