@@ -7,6 +7,8 @@ var activeTitle
 
 var d = new Date()
 
+//Uses alternate method of displaying titles in casparcg
+//makes the addTitle function assign toggleTitleLightweight() instead of toggle
 const performanceMode = true
 
 
