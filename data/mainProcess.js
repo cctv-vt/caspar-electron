@@ -7,6 +7,8 @@ var activeTitle
 
 var d = new Date()
 
+const performanceMode = true
+
 
 client.on('connect', () => {
     document.getElementById('connectionid').style.background = "#39ff92"
@@ -22,7 +24,7 @@ client.on('close', () => {
 client.connect(5250, 'localhost')
 
 client.on('data', function(data) {
-    console.log(data.toString());
+    console.log("recieved from casparcg: " + data.toString());
     let dataArr = data.toString().split(/\r\n/)
     dataArr.length -= 2
 
@@ -39,7 +41,7 @@ client.on('data', function(data) {
 })
 
 function refresh() {
-    client.connect(5250, 'localhost', function(){
+    client.connect(5250, 'localhost', () => {
         document.getElementById('connectionid').style.background = "#39ff92"
     })
 }
@@ -49,23 +51,73 @@ function send(msg) {
 }
 
 function addTitle(title) {
-    console.log(" add title fired")
     var elem = document.createElement('div')
     elem.classList.add("titleButton")
     elem.dataset.title = title
     document.getElementById('container').appendChild(elem)
     elem.innerHTML = document.getElementById('buttonTemplate').innerHTML
     elem.childNodes[1].placeholder = title
-    console.log(getChildNumber(elem)+ 21)
-    send("CG 1-" + (getChildNumber(elem) + 21).toString() + " ADD 1 \"" + title + "\" 0 \"{}\"")
-    elem.childNodes[3].addEventListener('click',function(event){
-        toggleTitle(event.target.parentElement)
-    }, false)
     elem.draggable = 'true'
+    if (!performanceMode) {
+        send("CG 1-" + (getChildNumber(elem) + 21).toString() + " ADD 1 \"" + title + "\" 0 \"{}\"")
+        elem.querySelector('.liveButton').addEventListener('click', (event) => {
+            toggleTitle(event.target.parentElement)
+        }, false)
+    } else {
+        elem.querySelector('.liveButton').addEventListener('click', (event) => {
+            toggleTitleLightweight(event.target.parentElement)
+        }, false)
+    }
+
 }
 
 //Figures out current title and toggles it/replaces it with time for 1s of animation
 function toggleTitle(elem) {
+    data = {
+        "name":document.getElementById('event').value,
+        "title":elem.childNodes[1].value,
+        "date": d.getMonth().toString() + "/" + d.getDate().toString() + "/" + d.getFullYear().toString()
+    }
+    dataString = JSON.stringify(data).replace(/\"/g,"\\\"")
+    var titleName = elem.dataset.title
+    var titleIndex = getChildNumber(elem) + 1
+    if (!activeTitle) {
+        console.log("!activeTitle")
+        //UPDATE AND PLAY TITLE
+        send("CG 1-" + (titleIndex + 20).toString() + " UPDATE 1 \"" + dataString +"\"")
+        send("CG 1-" + (titleIndex + 20).toString() + " PLAY 1")
+        // send("CG 1-20 ADD 1 \"" + titleName + "\" 1 \"" + dataString +"\"")
+        activeTitle = "trans"
+        setTimeout( () => {
+            activeTitle = titleIndex
+        },1000)
+    }else if (activeTitle == titleIndex) {
+        console.log("activeTitle == titleIndex")
+        send("CG 1-" + (activeTitle + 20).toString() +" STOP 1")
+        activeTitle = "trans"
+        setTimeout( () => {
+            activeTitle = null
+        },1000)
+        //activeTitle = null
+    } else if (activeTitle == "trans"){
+        console.log("transitioning")
+    } else {
+        console.log("else")
+        send("CG 1-" + (activeTitle + 20).toString() +" STOP 1")
+        activeTitle = "trans"
+        setTimeout( () => {
+            send("CG 1-" + (titleIndex + 20).toString() + " UPDATE 1 \"" + dataString +"\"")
+            send("CG 1-" + (titleIndex + 20).toString() + " PLAY 1")
+            setTimeout( () => {
+                activeTitle = titleIndex
+            },1000)
+        },1000)
+    }
+
+}
+
+function toggleTitleLightweight(elem) {
+    //A version of the toggle title command that is better for less powerful systems
     data = {
         "name":document.getElementById('event').value,
         "title":elem.childNodes[1].value,
@@ -79,18 +131,16 @@ function toggleTitle(elem) {
     if (!activeTitle) {
         console.log("!activeTitle")
         //UPDATE AND PLAY TITLE
-        send("CG 1-" + (titleIndex + 20).toString() + " UPDATE 1 \"" + dataString +"\"")
-        send("CG 1-" + (titleIndex + 20).toString() + " PLAY 1")
-        // send("CG 1-20 ADD 1 \"" + titleName + "\" 1 \"" + dataString +"\"")
+        send("CG 1-20 ADD 1 \"" + titleName + "\" 1 \"" + dataString +"\"")
         activeTitle = "trans"
-        setTimeout(function(){
+        setTimeout( () => {
             activeTitle = titleIndex
         },1000)
     }else if (activeTitle == titleIndex) {
         console.log("activeTitle == titleIndex")
-        send("CG 1-" + (activeTitle + 20).toString() +" STOP 1")
+        send("CG 1-20 STOP 1")
         activeTitle = "trans"
-        setTimeout(function(){
+        setTimeout( () => {
             activeTitle = null
         },1000)
         //activeTitle = null
@@ -98,23 +148,38 @@ function toggleTitle(elem) {
         console.log("transitioning")
     } else {
         console.log("else")
-        send("CG 1-" + (activeTitle + 20).toString() +" STOP 1")
+        send("CG 1-20 STOP 1")
         activeTitle = "trans"
-        setTimeout(function(){
-            send("CG 1-" + (titleIndex + 20).toString() + " UPDATE 1 \"" + dataString +"\"")
-            send("CG 1-" + (titleIndex + 20).toString() + " PLAY 1")
-            setTimeout(function(){
+        setTimeout( () => {
+            send("CG 1-20 ADD 1 \"" + titleName + "\" 1 \"" + dataString +"\"")
+            setTimeout( () => {
                 activeTitle = titleIndex
             },1000)
         },1000)
     }
+    
+}
+
+function indicateLive() {
+    var liveButtons = document.getElementsByClassName('liveButton')
+    for (var i = 0; i < liveButtons.length; i++) {
+        document.getElementById("container").childNodes[activeTitle - 1].querySelector('.liveButton').style.background = "#111"
+    }
+    if (activeTitle == 'trans') {
+        for (var i = 0; i < liveButtons.length; i++) {
+            document.getElementById("container").childNodes[activeTitle - 1].querySelector('.liveButton').style.background = "#154"
+        }
+    } else {
+        document.getElementById("container").childNodes[activeTitle - 1].querySelector('.liveButton').style.background = "#124"
+    }
+
 }
 
 function getChildNumber(node) {
     return Array.prototype.indexOf.call(node.parentNode.childNodes, node);
 }
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", () => {
     send("TLS")
     document.getElementById('connectionid').addEventListener('click', () => {
         send('TLS')
@@ -128,9 +193,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // }, false)
 });
 
-
-
-window.addEventListener('close', function(){
+window.addEventListener('unload', () => {
     send("KILL")
 })
 
