@@ -1,5 +1,7 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, globalShortcut } = require('electron')
 const { spawn,exec } = require('child_process')
+const fs = require('fs')
+
 function createWindow () {
   // Create the browser window.
   let win = new BrowserWindow({
@@ -17,13 +19,26 @@ function createWindow () {
   win.loadFile('index.html')
 }
 
+var settings = JSON.parse(fs.readFileSync('settings.json'))
+//const client = net.Socket()
+
+//client.connect(client.connect(5250, 'localhost'))
+
 //TODO: Make this path configurable
 //TODO: check for casparcg instrances
-const scanner = exec('d:/caspar-server/220/casparcg_auto_restart.bat', { shell:'cmd.exe', cwd:'d:/caspar-server/220/' }, (err, stdout, stderr) => {
-  console.log('s: '+err)
-  console.log('s: '+stderr)
-  console.log('s: '+stdout)
-});
+
+if (settings.server.autolaunch) {
+  const cpcgautolaunch = exec(settings.server.dir + 'casparcg_auto_restart.bat', { shell:'cmd.exe', cwd:settings.server.dir, windowsHide:false }, (err, stdout, stderr) => {
+    console.log('s: '+err)
+    console.log('s: '+stderr)
+    console.log('s: '+stdout)
+  });
+  cpcgautolaunch.stdout.on('data', (data) => {
+    console.log(data)
+  })
+}
+
+
 
 // const caspar = exec('d:/caspar-server/220/casparcg.exe', { shell:'cmd.exe', cwd:'d:/caspar-server/220/' }, (err, stdout, stderr) => {
 //   console.log('c: '+err)
@@ -31,9 +46,7 @@ const scanner = exec('d:/caspar-server/220/casparcg_auto_restart.bat', { shell:'
 //   console.log('c: '+stdout)
 // });
 
-scanner.stdout.on('data', (data) => {
-  console.log(data)
-})
+
 
 app.on('ready', () => {
   // const scanner = exec('d:/caspar-server/220/scanner.exe', { shell:'cmd.exe', cwd:'d:/caspar-server/220/' }, (err, stdout, stderr) => {
@@ -58,7 +71,8 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     // const killScanner = exec("taskkill /pid" + scanner.pid + "/f /t");
     // const killCaspar = exec("taskkill /pid" + caspar.pid + "/f /t", () => {
-      
+    //client.write('KILL\r\n')
+    //client.on('data',)
     // })
     app.quit()
   }

@@ -1,7 +1,11 @@
 const net = require("net")
 const remote = require("electron").remote
+const fs = require('fs')
 
-var client = new net.Socket();
+
+var settings = JSON.parse(fs.readFileSync('settings.json'))
+
+var client = new net.Socket()
 
 var activeTitle
 
@@ -9,7 +13,14 @@ var d = new Date()
 
 //Uses alternate method of displaying titles in casparcg
 //makes the addTitle function assign toggleTitleLightweight() instead of toggle
-const performanceMode = true
+const performanceMode = settings.client.lowPower
+
+// io.on('keydown', event => {
+//     console.log(event); // { type: 'mousemove', x: 700, y: 400 }
+//   });
+  
+
+// io.start()
 
 
 client.on('connect', () => {
@@ -18,9 +29,9 @@ client.on('connect', () => {
 })
 
 client.on('close', () => {
-    client.setTimeout(1000, () => {
+    setTimeout(() => {
         client.connect(5250, 'localhost')
-    })
+    },1000)
 })
 
 client.connect(5250, 'localhost')
@@ -33,9 +44,10 @@ client.on('data', function(data) {
     //Handle TLS return data
     if (dataArr[0] == "200 TLS OK"){
         dataArr.splice(0,1)
-        document.getElementById('container').innerHTML = ""
+        document.getElementById('titlesContainer').innerHTML = ""
         for (var i = 0; i < dataArr.length; i++) {
-            addTitle(dataArr[i])
+            //addTitle(dataArr[i])
+            addTitleLibrary(dataArr[i])
         }
     }
 
@@ -45,6 +57,19 @@ client.on('data', function(data) {
 function refresh() {
     client.connect(5250, 'localhost', () => {
         document.getElementById('connectionid').style.background = "#39ff92"
+    })
+}
+
+function addTitleLibrary(title) {
+    console.log(title + ' added to library')
+    var elem = document.createElement('div')
+    elem.classList.add("titleLibraryButton")
+    elem.dataset.title = title
+    document.getElementById('titlesContainer').appendChild(elem)
+    elem.innerHTML = document.getElementById('libraryTemplate').innerHTML
+    elem.childNodes[1].textContent = title
+    elem.querySelector('.addButton').addEventListener('click', () => {
+        addTitle(title)
     })
 }
 
@@ -60,14 +85,14 @@ function addTitle(title) {
     elem.innerHTML = document.getElementById('buttonTemplate').innerHTML
     elem.childNodes[1].placeholder = title
     elem.draggable = 'true'
-    if (!performanceMode) {
+    if (performanceMode) {
+        elem.querySelector('.liveButton').addEventListener('click', (event) => {
+            toggleTitleLightweight(event.target.parentElement)
+        }, false)
+    } else {
         send("CG 1-" + (getChildNumber(elem) + 21).toString() + " ADD 1 \"" + title + "\" 0 \"{}\"")
         elem.querySelector('.liveButton').addEventListener('click', (event) => {
             toggleTitle(event.target.parentElement)
-        }, false)
-    } else {
-        elem.querySelector('.liveButton').addEventListener('click', (event) => {
-            toggleTitleLightweight(event.target.parentElement)
         }, false)
     }
 
@@ -186,9 +211,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('connectionid').addEventListener('click', () => {
         send('TLS')
     })
-    document.getElementById("add").addEventListener('click', () => {
-        addTitle("TITLE/MUNICIPAL")
-    }, false)
+    // document.getElementById("add").addEventListener('click', () => {
+    //     addTitle("TITLE/MUNICIPAL")
+    // }, false)
     // document.getElementById('casparlist').addEventListener('click', function(){
     //     var input = document.getElementById('input');
     //     send(input.value)
@@ -196,6 +221,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 window.addEventListener('unload', () => {
-    send("KILL")
+    if(settings.server.autolaunch) {
+        send("KILL")
+    }
 })
 
