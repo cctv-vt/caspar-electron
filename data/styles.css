@@ -57,16 +57,25 @@ input {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    overflow: hidden;
+}
+
+.removeButton {
+    width: 1.5em;
+    background: #ff697d;
+    height: 2em;
+    border-radius: 0.5em;
+    margin:0;
 }
 
 .liveButton {
-    width: 1.2em;
-    /* height: 2em; */
+    width: 1.5em;
     background: #8cff69;
-    height: 1.2em;
-    border-radius: 0.1em;
-    margin:0.3em;
-    margin-right: 0.6em;
+    height: 2em;
+    border-radius: 0.5em;
+    margin:0;
+    
+    /* margin-right: 0.6em; */
     /* clip-path: polygon(0% 0%, 100% 50%, 0% 100%); */
 }
 
