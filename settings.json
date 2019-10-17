@@ -1,6 +1,6 @@
 {
     "server":{
-        "autolaunch":true,
+        "autolaunch":false,
         "dir":"d:/caspar-server/220/",
         "address":"127.0.0.1"
     },
