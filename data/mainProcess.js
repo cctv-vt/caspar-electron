@@ -83,7 +83,7 @@ function addTitle(title) {
     elem.dataset.title = title
     document.getElementById('container').appendChild(elem)
     elem.innerHTML = document.getElementById('buttonTemplate').innerHTML
-    elem.childNodes[1].placeholder = title
+    elem.querySelector('.titleInput').placeholder = title
     elem.draggable = 'true'
     if (performanceMode) {
         elem.querySelector('.liveButton').addEventListener('click', (event) => {
@@ -147,7 +147,7 @@ function toggleTitleLightweight(elem) {
     //A version of the toggle title command that is better for less powerful systems
     data = {
         "name":document.getElementById('event').value,
-        "title":elem.childNodes[1].value,
+        "title":elem.querySelector('.titleInput').value,
         "date": d.getMonth().toString() + "/" + d.getDate().toString() + "/" + d.getFullYear().toString()
     }
     dataString = JSON.stringify(data).replace(/\"/g,"\\\"")
