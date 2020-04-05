@@ -8,13 +8,6 @@
   },
   "author": "Solomon Zeitlyn",
   "license": "ISC",
-  "devDependencies": {
-    "electron": "^6.0.12"
-  },
-  "dependencies": {
-    "electron-abi": "^1.1.0",
-    "iohook": "^0.6.1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cctv-vt/caspar-electron.git"
@@ -22,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/cctv-vt/caspar-electron/issues"
   },
-  "homepage": "https://github.com/cctv-vt/caspar-electron#readme"
+  "homepage": "https://github.com/cctv-vt/caspar-electron#readme",
+  "devDependencies": {
+    "electron": "^8.0.1"
+  }
 }

@@ -14,6 +14,7 @@ var d = new Date()
 //Uses alternate method of displaying titles in casparcg
 //makes the addTitle function assign toggleTitleLightweight() instead of toggle
 const performanceMode = settings.client.lowPower
+const serverIp = settings.server.address;
 
 // io.on('keydown', event => {
 //     console.log(event); // { type: 'mousemove', x: 700, y: 400 }
@@ -30,11 +31,11 @@ client.on('connect', () => {
 
 client.on('close', () => {
     setTimeout(() => {
-        client.connect(5250, 'localhost')
+        client.connect(5250, serverIp)
     },1000)
 })
 
-client.connect(5250, 'localhost')
+client.connect(5250, serverIp)
 
 client.on('data', function(data) {
     console.log("recieved from casparcg: " + data.toString());

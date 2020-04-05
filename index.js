@@ -2,6 +2,8 @@ const { app, BrowserWindow, globalShortcut } = require('electron')
 const { spawn,exec } = require('child_process')
 const fs = require('fs')
 
+app.allowRendererProcessReuse = true;
+
 function createWindow () {
   // Create the browser window.
   let win = new BrowserWindow({
