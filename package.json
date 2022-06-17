@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/cctv-vt/caspar-electron#readme",
   "devDependencies": {
-    "electron": "^8.0.1"
+    "electron": "^15.5.5"
   }
 }
